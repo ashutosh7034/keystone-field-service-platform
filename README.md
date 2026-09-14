@@ -52,11 +52,12 @@ The platform is pre-loaded with sample operational data across all 4 system role
 
 | Role | Email | Name | Key Capabilities |
 | :--- | :--- | :--- | :--- |
-| **Manager** | `manager@keystone.com` | Marcus Vance | Complete system administration, Work Order closure, SLA reports, Staff creation |
-| **Dispatcher** | `dispatcher@keystone.com` | Diana Ross | Triage, job assignment to technicians, priority changes, schedule dispatch |
-| **Technician** | `tech1@keystone.com` | Carlos Mendez | View assigned jobs, start/pause timers, log labor hours, consume warehouse parts |
-| **Technician 2** | `tech2@keystone.com` | Aisha Khan | Assigned HVAC / Electrical field technician |
-| **Customer** | `customer@apex.com` | Sarah Jenkins | Tenant portal for Apex Towers: submit service tickets, track technician arrival |
+| **Manager** | `manager@keystone.demo` | Eleanor Vance (Operations Director) | Complete system administration, Work Order closure, SLA reports, Staff creation |
+| **Dispatcher** | `dispatcher@keystone.demo` | David Ross (Head Dispatcher) | Triage, job assignment to technicians, priority changes, schedule dispatch |
+| **Technician 1** | `technician1@keystone.demo` | Alex Rivera (Lead HVAC Tech) | View assigned jobs, start/pause timers, log labor hours, consume warehouse parts |
+| **Technician 2** | `technician2@keystone.demo` | Sarah Chen (Master Electrician) | Assigned HVAC / Electrical field technician |
+| **Customer 1** | `customer1@keystone.demo` | David Miller (Apex Facilities VP) | Tenant portal for Apex Towers: submit service tickets, track technician arrival |
+| **Customer 2** | `customer2@keystone.demo` | Elena Rostova (Metro Mall Director) | Tenant portal for Metro Outlets: submit service tickets, track technician arrival |
 
 > **Quick Demo Bar**: The frontend application includes a persistent top toolbar enabling 1-click instantaneous switching between all 4 roles for demonstration and evaluation.
 
@@ -66,7 +67,14 @@ The platform is pre-loaded with sample operational data across all 4 system role
 
 You can run PROJECT KEYSTONE locally on your machine using either **Native Local Setup (XAMPP / MySQL + Maven + Vite)** or **Docker 1-Click Setup**.
 
-### Method A: Native Local Execution (Recommended for Development)
+### Quick 1-Click Launchers (Windows)
+If you are on Windows, you can launch both Backend and Frontend simultaneously:
+- **Double-click** `start-keystone.bat`
+- Or in PowerShell: `.\start-keystone.ps1`
+
+---
+
+### Method A: Manual Local Execution (Step-by-Step)
 
 #### Step 1: Verify Prerequisites
 Open a terminal and verify the required runtime environments:
