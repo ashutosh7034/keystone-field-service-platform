@@ -62,60 +62,120 @@ The platform is pre-loaded with sample operational data across all 4 system role
 
 ---
 
-## 3. Local Development Setup (XAMPP / MySQL)
+## 3. How to Run (Step-by-Step Guide)
 
-### Prerequisites
-- **Java 21 JDK** installed (`java -version` should report 21+)
-- **Node.js 18+** and **npm**
-- **MySQL 8.0** or **XAMPP MySQL** running locally on port `3306`
-- **Apache Maven 3.9+**
+You can run PROJECT KEYSTONE locally on your machine using either **Native Local Setup (XAMPP / MySQL + Maven + Vite)** or **Docker 1-Click Setup**.
 
-### Step 1: Create Database
-Start MySQL (e.g. through the XAMPP Control Panel) and create the database:
-```sql
-CREATE DATABASE keystone_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+### Method A: Native Local Execution (Recommended for Development)
+
+#### Step 1: Verify Prerequisites
+Open a terminal and verify the required runtime environments:
+```bash
+# Verify Java (Requires Java 21 or higher)
+java -version
+
+# Verify Node.js & npm (Requires Node 18+)
+node -v
+npm -v
+
+# Verify Maven
+mvn -v
 ```
 
-### Step 2: Configure & Start Backend
-Verify `backend/src/main/resources/application.yml` matches your local MySQL username/password (default is `root` with no password).
+#### Step 2: Set Up MySQL Database
+1. Start your local **MySQL Server** (or open the **XAMPP Control Panel** and click **Start** next to MySQL on port `3306`).
+2. Open phpMyAdmin (`http://localhost/phpmyadmin`) or your MySQL client/terminal:
+   ```sql
+   CREATE DATABASE keystone_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+3. Default connection settings configured in `backend/src/main/resources/application.yml`:
+   - URL: `jdbc:mysql://localhost:3306/keystone_db`
+   - Username: `root`
+   - Password: *(blank by default)*
 
-Run Maven:
+> *Note: If your local MySQL has a root password, update `spring.datasource.password` in `backend/src/main/resources/application.yml` or set environment variable `SPRING_DATASOURCE_PASSWORD`.*
+
+#### Step 3: Start Spring Boot Backend
+Open a terminal in the project root:
+
+**Windows (PowerShell):**
 ```powershell
 cd backend
 mvn clean package -DskipTests
 mvn spring-boot:run
 ```
-Flyway will automatically execute migrations `V1` through `V11` and seed all users, facilities, parts, and active work orders.
-- **Backend URL**: `http://localhost:8080`
-- **Health Check**: `http://localhost:8080/api/health`
-- **Swagger OpenAPI Docs**: `http://localhost:8080/swagger-ui.html`
 
-### Step 3: Start Frontend Dev Server
-In a separate terminal:
+**Linux / macOS (Bash):**
+```bash
+cd backend
+mvn clean package -DskipTests
+mvn spring-boot:run
+```
+
+**What happens on startup:**
+- Flyway automatically executes database migrations `V1` through `V11`.
+- Creates all database schema tables, constraints, foreign keys, and indexes.
+- Seeds demo users, facilities, parts inventory, and work orders.
+- Backend server begins listening at `http://localhost:8080`.
+
+**Verify Backend is Running:**
+- Health Check: [http://localhost:8080/api/health](http://localhost:8080/api/health)
+- Swagger OpenAPI Docs: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+
+#### Step 4: Start React Frontend
+Open a **new terminal window** in the project root:
+
 ```powershell
 cd frontend
 npm install
 npm run dev
 ```
-- **Frontend App**: `http://localhost:5173`
+
+**Access the Web Application:**
+- Open your browser and navigate to: **`http://localhost:5173`**
+- Use the top **Demo Login Bar** to switch between Manager, Dispatcher, Technician, and Customer roles with a single click!
 
 ---
 
-## 4. Docker Deployment Quickstart
+### Method B: Docker Compose 1-Click Execution
 
-To run the entire ecosystem (MySQL 8 + Spring Boot Backend + Nginx Frontend) in isolated Docker containers:
+To build and orchestrate the entire environment (MySQL 8 database + Spring Boot Java 21 backend + Nginx React 18 frontend) inside isolated Docker containers:
 
 ```bash
+# Build and run all containers in the background
 docker-compose up --build -d
 ```
-- **Application Portal**: `http://localhost:3000`
-- **Backend API**: `http://localhost:8080`
-- **Database**: Port `3306`
 
-To shut down:
+**Access points:**
+- **Web App**: `http://localhost:3000`
+- **Backend REST API**: `http://localhost:8080`
+- **Swagger Documentation**: `http://localhost:8080/swagger-ui.html`
+- **MySQL Database**: `localhost:3306`
+
+**To stop all containers:**
 ```bash
 docker-compose down -v
 ```
+
+---
+
+## 4. Running Automated Tests
+
+Run the full backend automated test suite (verifying lifecycle states, customer tenant isolation, concurrency locks, SLA alarms, and authentication):
+
+```powershell
+cd backend
+mvn test
+```
+
+### Verified Test Suites (18 / 18 Passing):
+| Test Class | Tests | Key Scenarios Verified |
+| :--- | :---: | :--- |
+| `WorkOrderLifecycleTest` | 7 | Legal state progression, invalid transition rejection (409 Conflict), note validation, manager closure enforcement |
+| `CustomerIsolationTest` | 3 | Customer scoped queries, cross-tenant forbidden access, internal notes exclusion |
+| `PartUsageTransactionTest`| 2 | Atomic inventory deduction, pessimistic write locking (`@Lock`), insufficient stock rejection |
+| `SlaServiceTest` | 2 | SLA status calculation, automated notification dispatch for breached tickets |
+| `AuthServiceTest` | 4 | JWT issuance, password hashing verification, unauthorized rejection |
 
 ---
 
@@ -169,25 +229,7 @@ The state transition validation matrix in `WorkOrderLifecycleStateMachine.java` 
 
 ---
 
-## 7. Running Automated Tests
-
-Run the full backend test suite containing lifecycle verification, tenant isolation, concurrency tests, and SLA calculations:
-
-```powershell
-cd backend
-mvn test
-```
-
-### Verified Test Suites:
-- `WorkOrderLifecycleTest`: Validates legal and forbidden state machine transitions, note validation, and role restrictions.
-- `CustomerIsolationTest`: Verifies cross-tenant data protection and private internal notes exclusion.
-- `PartUsageTransactionTest`: Verifies inventory decrements, pessimistic locking, and negative stock rejection.
-- `SlaServiceTest`: Verifies SLA threshold calculations and automated notification dispatches.
-- `AuthServiceTest`: Verifies JWT issuance, password hashing, and user credential validation.
-
----
-
-## 8. Primary API Endpoints
+## 7. Primary API Endpoints
 
 | Method | Endpoint | Allowed Roles | Description |
 | :--- | :--- | :--- | :--- |
@@ -205,6 +247,17 @@ mvn test
 | `GET` | `/api/reports/summary` | Manager | SLA breach rates, technician workloads, category costs |
 | `GET` | `/api/customers` | Manager, Dispatcher | List customers and facilities |
 | `GET` | `/api/parts` | All Roles | Real-time warehouse inventory and stock levels |
+
+---
+
+## 8. Troubleshooting Guide
+
+| Issue | Cause | Solution |
+| :--- | :--- | :--- |
+| `Access denied for user 'root'@'localhost'` | MySQL has a password configured. | Update `spring.datasource.password` in `application.yml` or set environment variable `SPRING_DATASOURCE_PASSWORD`. |
+| `Port 8080 already in use` | Another process is using port 8080. | Stop the conflicting process or change `server.port` in `application.yml`. |
+| `Port 5173 already in use` | Another Vite server is running. | Vite will automatically suggest port `5174` or stop previous frontend process. |
+| `Java compilation error (Lombok)` | JDK 21+ compiler settings. | Ensure Lombok version is 1.18.36+ (configured in `pom.xml`). |
 
 ---
 
