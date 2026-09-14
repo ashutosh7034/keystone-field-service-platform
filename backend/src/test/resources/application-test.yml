@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: keystone-backend-test
+
+  datasource:
+    url: jdbc:h2:mem:keystonetest;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          time_zone: UTC
+    show-sql: false
+
+  flyway:
+    enabled: false
+
+keystone:
+  jwt:
+    secret: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+    expiration-ms: 86400000
+  sla:
+    emergency-hours: 4
+    high-hours: 12
+    medium-hours: 24
+    low-hours: 48
+    at-risk-warning-hours: 2
