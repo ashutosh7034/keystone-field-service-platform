@@ -1,8 +1,0 @@
-[phases.setup]
-nixPkgs = ["maven", "temurin-bin-21"]
-
-[phases.build]
-cmds = ["mvn clean package -DskipTests"]
-
-[start]
-cmd = "java -jar target/keystone-backend-1.0.0.jar"
