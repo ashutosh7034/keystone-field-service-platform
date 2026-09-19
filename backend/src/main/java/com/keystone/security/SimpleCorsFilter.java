@@ -29,7 +29,15 @@ public class SimpleCorsFilter implements Filter {
         }
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            response.setHeader("Access-Control-Allow-Origin", origin != null && !origin.isEmpty() ? origin : "https://frontend-production-f631.up.railway.app");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD");
+            response.setHeader("Access-Control-Max-Age", "3600");
+            response.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-Custom-Header");
+            response.setHeader("Access-Control-Expose-Headers", "Access-Control-Allow-Origin, Access-Control-Allow-Credentials, Authorization");
             response.setStatus(HttpServletResponse.SC_OK);
+            response.setContentLength(0);
+            response.flushBuffer();
             return;
         }
 

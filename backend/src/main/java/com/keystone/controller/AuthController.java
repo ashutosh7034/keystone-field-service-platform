@@ -22,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@CrossOrigin
 @Tag(name = "Authentication", description = "User authentication, JWT token generation, and account management")
 public class AuthController {
 

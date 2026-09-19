@@ -23,6 +23,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
+@CrossOrigin
 @Tag(name = "Attachments", description = "Job photos and file attachment uploads")
 @SecurityRequirement(name = "bearerAuth")
 public class AttachmentController {
