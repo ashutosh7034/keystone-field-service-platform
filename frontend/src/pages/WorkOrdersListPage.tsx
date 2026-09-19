@@ -187,29 +187,32 @@ export const WorkOrdersListPage: React.FC<WorkOrdersListPageProps> = ({ onNaviga
           overflowX: 'auto',
         }}
       >
-        {statusFilterTabs.map((tab) => (
-          <button
-            key={tab.label}
-            onClick={() => {
-              setSelectedStatus(tab.value);
-              setCurrentPage(0);
-            }}
-            style={{
-              padding: '0.4rem 0.85rem',
-              borderRadius: 'var(--radius-full)',
-              backgroundColor: selectedStatus === tab.value ? 'var(--primary)' : 'var(--bg-surface)',
-              color: selectedStatus === tab.value ? '#ffffff' : 'var(--text-secondary)',
-              border: 'none',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-              cursor: 'pointer',
-              whiteSpace: 'nowrap',
-              transition: 'all 0.15s ease',
-            }}
-          >
-            {tab.label}
-          </button>
-        ))}
+        {statusFilterTabs.map((tab) => {
+          const isActive = selectedStatus === tab.value;
+          return (
+            <button
+              key={tab.label}
+              onClick={() => {
+                setSelectedStatus(tab.value);
+                setCurrentPage(0);
+              }}
+              style={{
+                padding: '0.35rem 0.75rem',
+                borderRadius: 'var(--radius-sm)',
+                backgroundColor: isActive ? 'var(--primary-subtle)' : 'var(--bg-surface)',
+                color: isActive ? 'var(--primary)' : 'var(--text-secondary)',
+                border: isActive ? '1px solid var(--primary-border)' : '1px solid var(--border-subtle)',
+                fontSize: '0.8rem',
+                fontWeight: isActive ? 600 : 500,
+                cursor: 'pointer',
+                whiteSpace: 'nowrap',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              {tab.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Search & Filter Controls */}
@@ -303,7 +306,7 @@ export const WorkOrdersListPage: React.FC<WorkOrdersListPageProps> = ({ onNaviga
                     onClick={() => onNavigateToWorkOrder(wo.id)}
                     style={{ cursor: 'pointer' }}
                   >
-                    <td style={{ fontWeight: 800, color: 'var(--primary)', fontFamily: 'monospace', fontSize: '0.9rem' }}>
+                    <td style={{ fontWeight: 600, color: 'var(--primary)', fontFamily: 'monospace', fontSize: '0.85rem' }}>
                       {wo.workOrderCode}
                     </td>
                     <td>

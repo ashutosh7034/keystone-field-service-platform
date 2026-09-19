@@ -161,14 +161,15 @@ export const CustomersPage: React.FC = () => {
         <button
           onClick={() => setActiveTab('CUSTOMERS')}
           style={{
-            padding: '0.5rem 1.25rem',
-            borderRadius: 'var(--radius-md)',
-            backgroundColor: activeTab === 'CUSTOMERS' ? 'var(--primary)' : 'var(--bg-card)',
-            color: activeTab === 'CUSTOMERS' ? '#ffffff' : 'var(--text-secondary)',
-            border: '1px solid var(--border-subtle)',
-            fontWeight: 700,
+            padding: '0.45rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: activeTab === 'CUSTOMERS' ? 'var(--primary-subtle)' : 'var(--bg-surface)',
+            color: activeTab === 'CUSTOMERS' ? 'var(--primary)' : 'var(--text-secondary)',
+            border: activeTab === 'CUSTOMERS' ? '1px solid var(--primary-border)' : '1px solid var(--border-subtle)',
+            fontWeight: activeTab === 'CUSTOMERS' ? 600 : 500,
             fontSize: '0.85rem',
             cursor: 'pointer',
+            transition: 'all 0.15s ease',
           }}
         >
           Customer Organizations ({customers.length})
@@ -176,14 +177,15 @@ export const CustomersPage: React.FC = () => {
         <button
           onClick={() => setActiveTab('SITES')}
           style={{
-            padding: '0.5rem 1.25rem',
-            borderRadius: 'var(--radius-md)',
-            backgroundColor: activeTab === 'SITES' ? 'var(--primary)' : 'var(--bg-card)',
-            color: activeTab === 'SITES' ? '#ffffff' : 'var(--text-secondary)',
-            border: '1px solid var(--border-subtle)',
-            fontWeight: 700,
+            padding: '0.45rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            backgroundColor: activeTab === 'SITES' ? 'var(--primary-subtle)' : 'var(--bg-surface)',
+            color: activeTab === 'SITES' ? 'var(--primary)' : 'var(--text-secondary)',
+            border: activeTab === 'SITES' ? '1px solid var(--primary-border)' : '1px solid var(--border-subtle)',
+            fontWeight: activeTab === 'SITES' ? 600 : 500,
             fontSize: '0.85rem',
             cursor: 'pointer',
+            transition: 'all 0.15s ease',
           }}
         >
           Facility Sites ({sites.length})

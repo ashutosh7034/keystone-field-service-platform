@@ -134,6 +134,10 @@ public class WorkOrderMapper {
                 ? wo.getStatusHistory().stream().map(this::toStatusHistoryDto).collect(Collectors.toList())
                 : Collections.emptyList();
 
+        List<AttachmentResponseDto> attachmentDtos = wo.getAttachments() != null
+                ? wo.getAttachments().stream().map(attachmentMapper::toDto).collect(Collectors.toList())
+                : Collections.emptyList();
+
         return CustomerWorkOrderDetailDto.builder()
                 .id(wo.getId())
                 .workOrderCode(wo.getWorkOrderCode())
@@ -146,6 +150,8 @@ public class WorkOrderMapper {
                 .siteAddress(wo.getSite() != null ? wo.getSite().getAddress() : null)
                 .siteCity(wo.getSite() != null ? wo.getSite().getCity() : null)
                 .siteState(wo.getSite() != null ? wo.getSite().getState() : null)
+                .assignedTechnicianId(wo.getAssignedTechnician() != null ? wo.getAssignedTechnician().getId() : null)
+                .assignedTechnicianName(wo.getAssignedTechnician() != null ? wo.getAssignedTechnician().getFullName() : null)
                 .slaDueDate(wo.getSlaDueDate())
                 .slaStatus(wo.getSlaStatus())
                 .completedAt(wo.getCompletedAt())
@@ -155,6 +161,7 @@ public class WorkOrderMapper {
                 .createdAt(wo.getCreatedAt())
                 .updatedAt(wo.getUpdatedAt())
                 .statusHistory(historyDtos)
+                .attachments(attachmentDtos)
                 .build();
     }
 }

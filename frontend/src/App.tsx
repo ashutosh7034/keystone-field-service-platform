@@ -16,14 +16,50 @@ import { ReportsPage } from './pages/ReportsPage';
 import { UsersPage } from './pages/UsersPage';
 
 export const App: React.FC = () => {
-  const { isAuthenticated, user, isLoading } = useAuth();
+  const { isAuthenticated, user, isLoading, switchDemoUser } = useAuth();
   const [currentView, setCurrentView] = useState<string>('dashboard');
   const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<number | null>(null);
   const [previousView, setPreviousView] = useState<string>('dashboard');
 
+  // URL query parameter support for direct link and test navigation
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const autologin = params.get('autologin');
+    const wo = params.get('wo');
+
+    if (autologin && !isAuthenticated && !isLoading) {
+      switchDemoUser(autologin);
+    }
+
+    if (wo) {
+      const woId = parseInt(wo, 10);
+      if (!isNaN(woId)) {
+        setSelectedWorkOrderId(woId);
+        setCurrentView('workorder-detail');
+      }
+    }
+  }, [isAuthenticated, isLoading, switchDemoUser]);
+
   // Set initial view based on user role upon login or role change
   useEffect(() => {
     if (user) {
+      const params = new URLSearchParams(window.location.search);
+      const wo = params.get('wo');
+      if (wo) {
+        const woId = parseInt(wo, 10);
+        if (!isNaN(woId)) {
+          setSelectedWorkOrderId(woId);
+          setCurrentView('workorder-detail');
+          return;
+        }
+      }
+
+      const view = params.get('view');
+      if (view) {
+        setCurrentView(view);
+        return;
+      }
+
       if (user.role === 'ROLE_TECHNICIAN') {
         setCurrentView('technician-jobs');
       } else if (user.role === 'ROLE_CUSTOMER') {

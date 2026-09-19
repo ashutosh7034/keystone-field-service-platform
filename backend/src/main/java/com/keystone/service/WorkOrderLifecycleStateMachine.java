@@ -146,13 +146,17 @@ public class WorkOrderLifecycleStateMachine {
                     if (role != Role.ROLE_TECHNICIAN && role != Role.ROLE_MANAGER) {
                         throw new UnauthorizedAccessException("Only the assigned technician or a manager can resume work.");
                     }
+                } else if (to == WorkOrderStatus.ASSIGNED) {
+                    if (role != Role.ROLE_DISPATCHER && role != Role.ROLE_MANAGER) {
+                        throw new UnauthorizedAccessException("Only dispatchers and managers can reassign a work order on hold.");
+                    }
                 } else if (to == WorkOrderStatus.CANCELLED) {
                     if (role != Role.ROLE_DISPATCHER && role != Role.ROLE_MANAGER) {
                         throw new UnauthorizedAccessException("Only dispatchers and managers can cancel a work order on hold.");
                     }
                 } else {
                     throw new InvalidLifecycleTransitionException(
-                            String.format("Illegal transition: %s -> %s. An ON_HOLD work order can only move to IN_PROGRESS or CANCELLED.", from, to));
+                            String.format("Illegal transition: %s -> %s. An ON_HOLD work order can only move to IN_PROGRESS, ASSIGNED, or CANCELLED.", from, to));
                 }
             }
             case COMPLETED -> {

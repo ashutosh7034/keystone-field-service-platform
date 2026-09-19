@@ -1,0 +1,36 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Wrapper for Linux / macOS
+# ----------------------------------------------------------------------------
+
+MAVEN_VERSION="3.9.9"
+MAVEN_DIR="$HOME/.m2/wrapper/dists/apache-maven-$MAVEN_VERSION"
+MAVEN_ZIP="$MAVEN_DIR/apache-maven-$MAVEN_VERSION-bin.zip"
+MAVEN_HOME="$MAVEN_DIR/apache-maven-$MAVEN_VERSION"
+MVN_CMD="$MAVEN_HOME/bin/mvn"
+
+if [ -x "$MVN_CMD" ]; then
+    exec "$MVN_CMD" "$@"
+fi
+
+mkdir -p "$MAVEN_DIR"
+
+if [ ! -f "$MAVEN_ZIP" ]; then
+    echo "Downloading Apache Maven $MAVEN_VERSION..."
+    if command -v curl >/dev/null 2>&1; then
+        curl -fsSL "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip" -o "$MAVEN_ZIP"
+    elif command -v wget >/dev/null 2>&1; then
+        wget -q "https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/$MAVEN_VERSION/apache-maven-$MAVEN_VERSION-bin.zip" -O "$MAVEN_ZIP"
+    else
+        echo "[ERROR] Neither curl nor wget was found."
+        exit 1
+    fi
+fi
+
+if [ ! -x "$MVN_CMD" ]; then
+    echo "Extracting Apache Maven..."
+    unzip -q -o "$MAVEN_ZIP" -d "$MAVEN_DIR"
+    chmod +x "$MVN_CMD"
+fi
+
+exec "$MVN_CMD" "$@"

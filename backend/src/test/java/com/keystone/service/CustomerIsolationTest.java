@@ -128,6 +128,7 @@ public class CustomerIsolationTest {
         CustomerWorkOrderDetailDto detail = (CustomerWorkOrderDetailDto) response;
         assertEquals("WO-2026-CUST01", detail.getWorkOrderCode());
         assertEquals("Elevator Service", detail.getTitle());
+        assertNotNull(detail.getAttachments());
     }
 
     @Test

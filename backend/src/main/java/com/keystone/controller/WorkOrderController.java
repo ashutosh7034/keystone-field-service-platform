@@ -142,7 +142,7 @@ public class WorkOrderController {
         return ResponseEntity.ok(workOrderService.assignTechnician(id, dto, currentUser));
     }
 
-    @PostMapping("/work-orders/{id}/status")
+    @RequestMapping(value = "/work-orders/{id}/status", method = {RequestMethod.POST, RequestMethod.PATCH})
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Execute state machine status transition with immutable history")
     public ResponseEntity<WorkOrderDetailDto> transitionStatus(
@@ -170,7 +170,7 @@ public class WorkOrderController {
         return ResponseEntity.ok(partUsageService.getPartUsagesForWorkOrder(id));
     }
 
-    @PostMapping("/work-orders/{id}/time")
+    @RequestMapping(value = {"/work-orders/{id}/time", "/work-orders/{id}/timelogs"}, method = RequestMethod.POST)
     @PreAuthorize("hasAnyRole('TECHNICIAN', 'MANAGER')")
     @Operation(summary = "Log technician labor time on work order")
     public ResponseEntity<TimeLogResponseDto> logTime(
@@ -181,7 +181,7 @@ public class WorkOrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/work-orders/{id}/time")
+    @RequestMapping(value = {"/work-orders/{id}/time", "/work-orders/{id}/timelogs"}, method = RequestMethod.GET)
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Get labor time logs for a work order")
     public ResponseEntity<List<TimeLogResponseDto>> getTimeLogs(@PathVariable Long id) {

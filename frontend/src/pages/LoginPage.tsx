@@ -33,7 +33,7 @@ export const LoginPage: React.FC = () => {
     <div
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse at top, #1e293b 0%, #0b0f19 100%)',
+        background: '#F3F4F6',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -43,36 +43,35 @@ export const LoginPage: React.FC = () => {
       <div
         style={{
           width: '100%',
-          maxWidth: '460px',
-          backgroundColor: 'var(--bg-card)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '2.25rem',
-          boxShadow: 'var(--shadow-lg), var(--shadow-glow)',
+          maxWidth: '440px',
+          backgroundColor: '#FFFFFF',
+          border: '1px solid #D9DEE5',
+          borderRadius: '6px',
+          padding: '2rem',
+          boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.08)',
         }}
       >
         {/* Brand Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '1.75rem' }}>
           <div
             style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: 'var(--radius-lg)',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
+              width: '44px',
+              height: '44px',
+              borderRadius: '5px',
+              background: '#2563EB',
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#ffffff',
-              marginBottom: '1rem',
-              boxShadow: '0 8px 16px rgba(37, 99, 235, 0.4)',
+              marginBottom: '0.85rem',
             }}
           >
-            <Wrench size={30} />
+            <Wrench size={22} />
           </div>
-          <h1 style={{ fontSize: '1.65rem', fontWeight: 800, letterSpacing: '-0.02em', marginBottom: '0.35rem' }}>
+          <h1 style={{ fontSize: '1.4rem', fontWeight: 700, letterSpacing: '-0.01em', marginBottom: '0.25rem', color: '#1F2937' }}>
             PROJECT KEYSTONE
           </h1>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '0.85rem', color: '#667085' }}>
             Meridian Facilities Management Operating Platform
           </p>
         </div>
@@ -145,59 +144,59 @@ export const LoginPage: React.FC = () => {
         </form>
 
         {/* Demo Fast Login Section */}
-        <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-subtle)' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--text-muted)', textAlign: 'center', marginBottom: '1rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-            ⚡ 1-Click Demo Logins (Password: password123)
+        <div style={{ marginTop: '1.75rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-subtle)' }}>
+          <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textAlign: 'center', marginBottom: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Demo Profiles (Password: password123)
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.45rem' }}>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => handleQuickLogin('manager@keystone.demo')}
-              style={{ justifyContent: 'flex-start', fontSize: '0.75rem' }}
+              style={{ justifyContent: 'flex-start', fontSize: '0.75rem', fontWeight: 500 }}
             >
-              <ShieldCheck size={14} color="#8b5cf6" /> Manager
+              <ShieldCheck size={14} color="#64748B" /> Manager
             </button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => handleQuickLogin('dispatcher@keystone.demo')}
-              style={{ justifyContent: 'flex-start', fontSize: '0.75rem' }}
+              style={{ justifyContent: 'flex-start', fontSize: '0.75rem', fontWeight: 500 }}
             >
-              <UserCheck size={14} color="#3b82f6" /> Dispatcher
+              <UserCheck size={14} color="#64748B" /> Dispatcher
             </button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => handleQuickLogin('technician1@keystone.demo')}
-              style={{ justifyContent: 'flex-start', fontSize: '0.75rem' }}
+              style={{ justifyContent: 'flex-start', fontSize: '0.75rem', fontWeight: 500 }}
             >
-              <Wrench size={14} color="#f59e0b" /> Tech 1 (HVAC)
+              <Wrench size={14} color="#64748B" /> Tech 1 (HVAC)
             </button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => handleQuickLogin('technician2@keystone.demo')}
-              style={{ justifyContent: 'flex-start', fontSize: '0.75rem' }}
+              style={{ justifyContent: 'flex-start', fontSize: '0.75rem', fontWeight: 500 }}
             >
-              <Wrench size={14} color="#10b981" /> Tech 2 (Elec)
+              <Wrench size={14} color="#64748B" /> Tech 2 (Elec)
             </button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => handleQuickLogin('customer1@keystone.demo')}
-              style={{ justifyContent: 'flex-start', fontSize: '0.75rem' }}
+              style={{ justifyContent: 'flex-start', fontSize: '0.75rem', fontWeight: 500 }}
             >
-              <Building size={14} color="#ec4899" /> Customer 1 (Apex)
+              <Building size={14} color="#64748B" /> Customer (Apex)
             </button>
             <button
               type="button"
               className="btn btn-secondary btn-sm"
               onClick={() => handleQuickLogin('customer2@keystone.demo')}
-              style={{ justifyContent: 'flex-start', fontSize: '0.75rem' }}
+              style={{ justifyContent: 'flex-start', fontSize: '0.75rem', fontWeight: 500 }}
             >
-              <Building size={14} color="#06b6d4" /> Customer 2 (Metro)
+              <Building size={14} color="#64748B" /> Customer (Metro)
             </button>
           </div>
         </div>

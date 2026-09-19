@@ -16,6 +16,7 @@ import {
   Building2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 
 interface TechnicianMobileViewProps {
   onNavigateToWorkOrder: (id: number) => void;
@@ -23,6 +24,7 @@ interface TechnicianMobileViewProps {
 
 export const TechnicianMobileView: React.FC<TechnicianMobileViewProps> = ({ onNavigateToWorkOrder }) => {
   const { user } = useAuth();
+  const toast = useToast();
   const [jobs, setJobs] = useState<WorkOrderSummary[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'ALL' | 'IN_PROGRESS' | 'ASSIGNED' | 'ON_HOLD' | 'COMPLETED'>('ALL');
@@ -57,9 +59,10 @@ export const TechnicianMobileView: React.FC<TechnicianMobileViewProps> = ({ onNa
   const handleQuickTransition = async (id: number, targetStatus: WorkOrderStatus) => {
     try {
       await workOrdersApi.transitionStatus(id, { targetStatus });
+      toast.success(`Job updated to ${targetStatus.replace('_', ' ')}.`);
       fetchMyJobs();
     } catch (err: any) {
-      alert(err.response?.data?.message || 'Transition rejected.');
+      toast.error(err.response?.data?.message || 'Transition rejected.');
     }
   };
 
@@ -67,11 +70,12 @@ export const TechnicianMobileView: React.FC<TechnicianMobileViewProps> = ({ onNa
     <div className="page-body" style={{ maxWidth: '1000px' }}>
       {/* Technician Welcome Header */}
       <div
+        className="dark-hero-banner"
         style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '1.5rem',
+          backgroundColor: '#0F1B2D',
+          border: '1px solid #1E293B',
+          borderRadius: '6px',
+          padding: '1.5rem 1.75rem',
           marginBottom: '1.5rem',
           display: 'flex',
           alignItems: 'center',
@@ -81,13 +85,33 @@ export const TechnicianMobileView: React.FC<TechnicianMobileViewProps> = ({ onNa
         }}
       >
         <div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--warning)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Wrench size={14} /> Field Operations View
+          <div
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#FDE68A',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              marginBottom: '0.35rem',
+            }}
+          >
+            <Wrench size={14} color="#FDE68A" /> FIELD OPERATIONS VIEW
           </div>
-          <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '0.2rem' }}>
+          <h2
+            style={{
+              fontSize: '1.45rem',
+              fontWeight: 700,
+              color: '#FFFFFF',
+              margin: '0 0 0.35rem 0',
+              letterSpacing: '-0.01em',
+            }}
+          >
             Welcome back, {user?.fullName}
           </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '0.875rem', color: '#CBD5E1', margin: 0 }}>
             You have {jobs.filter((j) => j.status === 'IN_PROGRESS' || j.status === 'ASSIGNED').length} active job(s) in queue
           </p>
         </div>
@@ -114,15 +138,16 @@ export const TechnicianMobileView: React.FC<TechnicianMobileViewProps> = ({ onNa
             key={tab.id}
             onClick={() => setActiveTab(tab.id as any)}
             style={{
-              padding: '0.5rem 1rem',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: activeTab === tab.id ? 'var(--primary)' : 'var(--bg-card)',
-              color: activeTab === tab.id ? '#ffffff' : 'var(--text-secondary)',
-              border: activeTab === tab.id ? '1px solid var(--primary)' : '1px solid var(--border-subtle)',
-              fontSize: '0.85rem',
-              fontWeight: 700,
+              padding: '0.4rem 0.85rem',
+              borderRadius: 'var(--radius-sm)',
+              backgroundColor: activeTab === tab.id ? 'var(--primary-subtle)' : 'var(--bg-surface)',
+              color: activeTab === tab.id ? 'var(--primary)' : 'var(--text-secondary)',
+              border: activeTab === tab.id ? '1px solid var(--primary-border)' : '1px solid var(--border-subtle)',
+              fontSize: '0.8rem',
+              fontWeight: activeTab === tab.id ? 600 : 500,
               cursor: 'pointer',
               whiteSpace: 'nowrap',
+              transition: 'all 0.15s ease',
             }}
           >
             {tab.label}

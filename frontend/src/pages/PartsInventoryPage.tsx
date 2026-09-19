@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { partsApi } from '../api/client';
 import { Part } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { Modal } from '../components/Modal';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { EmptyState } from '../components/EmptyState';
@@ -9,6 +10,7 @@ import { Plus, Search, Wrench, AlertTriangle, Edit } from 'lucide-react';
 
 export const PartsInventoryPage: React.FC = () => {
   const { user } = useAuth();
+  const toast = useToast();
   const [parts, setParts] = useState<Part[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -95,6 +97,7 @@ export const PartsInventoryPage: React.FC = () => {
           stockQuantity,
           leadTimeDays,
         });
+        toast.success(`Part ${sku} updated successfully.`);
       } else {
         await partsApi.create({
           sku,
@@ -105,6 +108,7 @@ export const PartsInventoryPage: React.FC = () => {
           stockQuantity,
           leadTimeDays,
         });
+        toast.success(`Part ${sku} added to inventory.`);
       }
       setIsModalOpen(false);
       fetchParts();
@@ -190,7 +194,7 @@ export const PartsInventoryPage: React.FC = () => {
             <tbody>
               {parts.map((p) => (
                 <tr key={p.id}>
-                  <td style={{ fontWeight: 800, fontFamily: 'monospace', color: 'var(--primary)' }}>
+                  <td style={{ fontWeight: 600, fontFamily: 'monospace', color: 'var(--text-primary)' }}>
                     {p.sku}
                   </td>
                   <td>
@@ -222,7 +226,13 @@ export const PartsInventoryPage: React.FC = () => {
                   </td>
                   <td>{p.leadTimeDays} days</td>
                   <td>
-                    <span className="badge badge-completed">Active</span>
+                    {p.stockQuantity === 0 ? (
+                      <span className="badge badge-cancelled">Out of Stock</span>
+                    ) : p.stockQuantity <= 5 ? (
+                      <span className="badge badge-warning">Low Stock</span>
+                    ) : (
+                      <span className="badge badge-completed">In Stock</span>
+                    )}
                   </td>
                   {isManager && (
                     <td>

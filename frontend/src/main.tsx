@@ -4,6 +4,7 @@ import { App } from './App';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { ToastProvider } from './context/ToastContext';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
@@ -11,7 +12,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
     <ThemeProvider>
       <AuthProvider>
         <NotificationProvider>
-          <App />
+          <ToastProvider>
+            <App />
+          </ToastProvider>
         </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>

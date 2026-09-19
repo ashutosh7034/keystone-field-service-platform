@@ -27,6 +27,8 @@ public class CustomerWorkOrderDetailDto {
     private String siteAddress;
     private String siteCity;
     private String siteState;
+    private Long assignedTechnicianId;
+    private String assignedTechnicianName;
     private LocalDateTime slaDueDate;
     private SlaStatus slaStatus;
     private LocalDateTime completedAt;
@@ -36,4 +38,5 @@ public class CustomerWorkOrderDetailDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<StatusHistoryResponseDto> statusHistory;
+    private List<AttachmentResponseDto> attachments;
 }

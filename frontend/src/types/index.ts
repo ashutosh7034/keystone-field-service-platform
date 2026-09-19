@@ -208,6 +208,8 @@ export interface CustomerWorkOrderDetail {
   siteAddress: string;
   siteCity: string;
   siteState: string;
+  assignedTechnicianId?: number;
+  assignedTechnicianName?: string;
   slaDueDate: string;
   slaStatus: SlaStatus;
   completedAt?: string;
@@ -217,6 +219,7 @@ export interface CustomerWorkOrderDetail {
   createdAt: string;
   updatedAt: string;
   statusHistory: StatusHistory[];
+  attachments: Attachment[];
 }
 
 export interface NotificationItem {

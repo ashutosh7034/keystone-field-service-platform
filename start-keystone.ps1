@@ -4,20 +4,32 @@ Write-Host "  Starting PROJECT KEYSTONE - Field Service Management" -ForegroundC
 Write-Host "============================================================" -ForegroundColor Cyan
 
 # 1. Environment Detection & Configuration
-$jdkPath = "C:\Program Files\Java\jdk-21.0.12"
-$mvnPath = "C:\Users\Ashutosh Pandey\Downloads\OneConnect---Web-Application\apache-maven-3.9.6\bin"
+$jdkPaths = @(
+    "C:\Program Files\Java\jdk-21.0.12",
+    "C:\Program Files\Java\jdk-21",
+    $env:JAVA_HOME
+)
 
-if (Test-Path $jdkPath) {
-    $env:JAVA_HOME = $jdkPath
-    $env:Path = "$jdkPath\bin;$mvnPath;" + $env:Path
-    Write-Host "[OK] Configured Java 21 environment." -ForegroundColor Green
-} else {
-    Write-Host "[INFO] Using default system Java." -ForegroundColor Yellow
+$detectedJdk = $null
+foreach ($path in $jdkPaths) {
+    if ($path -and (Test-Path $path)) {
+        $detectedJdk = $path
+        break
+    }
 }
 
-# 2. Start Backend Server
+if ($detectedJdk) {
+    $env:JAVA_HOME = $detectedJdk
+    $env:Path = "$detectedJdk\bin;" + $env:Path
+    Write-Host "[OK] Using Java at: $detectedJdk" -ForegroundColor Green
+} else {
+    Write-Host "[INFO] Using default system Java from PATH." -ForegroundColor Yellow
+}
+
+# 2. Start Backend Server using Maven Wrapper
 Write-Host "`n[1/2] Starting Spring Boot Backend (Port 8080)..." -ForegroundColor Yellow
-Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd backend; `$env:JAVA_HOME='$jdkPath'; `$env:Path='$jdkPath\bin;$mvnPath;' + `$env:Path; mvn spring-boot:run"
+$backendCmd = "cd backend; if ('$detectedJdk') { `$env:JAVA_HOME='$detectedJdk'; `$env:Path='$detectedJdk\bin;' + `$env:Path }; .\mvnw.cmd spring-boot:run"
+Start-Process powershell -ArgumentList "-NoExit", "-Command", $backendCmd
 
 # 3. Start Frontend Dev Server
 Write-Host "[2/2] Starting Vite Frontend Server (Port 5173)..." -ForegroundColor Yellow
@@ -29,3 +41,4 @@ Write-Host "  - Frontend Portal: http://localhost:5173" -ForegroundColor White
 Write-Host "  - Backend API:     http://localhost:8080" -ForegroundColor White
 Write-Host "  - Swagger Docs:    http://localhost:8080/swagger-ui.html" -ForegroundColor White
 Write-Host "============================================================" -ForegroundColor Green
+

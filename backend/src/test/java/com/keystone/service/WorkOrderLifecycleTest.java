@@ -225,4 +225,19 @@ public class WorkOrderLifecycleTest {
                 stateMachine.validateAndExecuteTransition(
                         workOrder, WorkOrderStatus.ASSIGNED, manager, managerPrincipal, "Try assign cancelled", null));
     }
+
+    @Test
+    @DisplayName("Dispatcher and Manager can reassign an ON_HOLD work order back to ASSIGNED")
+    void shouldAllowHoldToAssignedReassignmentByDispatcher() {
+        workOrder.setStatus(WorkOrderStatus.ON_HOLD);
+        workOrder.setAssignedTechnician(technician);
+        UserPrincipal dispatcherPrincipal = UserPrincipal.create(dispatcher);
+
+        workOrder.setAssignedTechnician(otherTechnician);
+        stateMachine.validateAndExecuteTransition(
+                workOrder, WorkOrderStatus.ASSIGNED, dispatcher, dispatcherPrincipal, "Reassigned to Sarah Chen while on hold", null);
+
+        assertEquals(WorkOrderStatus.ASSIGNED, workOrder.getStatus());
+        assertEquals(otherTechnician.getId(), workOrder.getAssignedTechnician().getId());
+    }
 }

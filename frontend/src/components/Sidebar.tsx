@@ -31,21 +31,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
     <aside className="sidebar">
       <div className="sidebar-header">
         <div className="brand-logo">
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: 'var(--radius-sm)',
-              background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#ffffff',
-            }}
-          >
-            <Wrench size={18} />
+          <div className="brand-emblem">
+            <Wrench size={14} />
           </div>
-          KEYSTONE
+          <span>KEYSTONE</span>
         </div>
       </div>
 
@@ -58,45 +47,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
               className={`nav-link ${currentView === 'dashboard' ? 'active' : ''}`}
               onClick={() => onNavigate('dashboard')}
             >
-              <LayoutDashboard size={18} />
-              Dashboard
+              <LayoutDashboard size={16} />
+              <span>Dashboard</span>
             </div>
             <div
               className={`nav-link ${currentView === 'workorders' ? 'active' : ''}`}
               onClick={() => onNavigate('workorders')}
             >
-              <ClipboardList size={18} />
-              Work Orders
+              <ClipboardList size={16} />
+              <span>Work Orders</span>
             </div>
             <div
               className={`nav-link ${currentView === 'kanban' ? 'active' : ''}`}
               onClick={() => onNavigate('kanban')}
             >
-              <Kanban size={18} />
-              Kanban Board
+              <Kanban size={16} />
+              <span>Kanban Board</span>
             </div>
 
-            <div className="nav-category">Facilities & Entities</div>
+            <div className="nav-category">Customers & Assets</div>
             <div
               className={`nav-link ${currentView === 'customers' ? 'active' : ''}`}
               onClick={() => onNavigate('customers')}
             >
-              <Building2 size={18} />
-              Customers
+              <Building2 size={16} />
+              <span>Customers</span>
             </div>
             <div
               className={`nav-link ${currentView === 'sites' ? 'active' : ''}`}
               onClick={() => onNavigate('sites')}
             >
-              <MapPin size={18} />
-              Sites
+              <MapPin size={16} />
+              <span>Sites</span>
             </div>
             <div
               className={`nav-link ${currentView === 'inventory' ? 'active' : ''}`}
               onClick={() => onNavigate('inventory')}
             >
-              <Wrench size={18} />
-              Parts & Inventory
+              <Wrench size={16} />
+              <span>Parts & Inventory</span>
             </div>
 
             {isManager && (
@@ -106,15 +95,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
                   className={`nav-link ${currentView === 'reports' ? 'active' : ''}`}
                   onClick={() => onNavigate('reports')}
                 >
-                  <BarChart3 size={18} />
-                  SLA & Performance
+                  <BarChart3 size={16} />
+                  <span>SLA & Performance</span>
                 </div>
                 <div
                   className={`nav-link ${currentView === 'users' ? 'active' : ''}`}
                   onClick={() => onNavigate('users')}
                 >
-                  <Users size={18} />
-                  Staff & Users
+                  <Users size={16} />
+                  <span>Staff & Users</span>
                 </div>
               </>
             )}
@@ -124,20 +113,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
         {/* Technician Menu */}
         {isTechnician && (
           <>
-            <div className="nav-category">Field Technician Portal</div>
+            <div className="nav-category">Field Portal</div>
             <div
               className={`nav-link ${currentView === 'technician-jobs' ? 'active' : ''}`}
               onClick={() => onNavigate('technician-jobs')}
             >
-              <Wrench size={18} />
-              My Assigned Jobs
+              <Wrench size={16} />
+              <span>My Assigned Jobs</span>
             </div>
             <div
               className={`nav-link ${currentView === 'inventory' ? 'active' : ''}`}
               onClick={() => onNavigate('inventory')}
             >
-              <Wrench size={18} />
-              Parts Catalog
+              <Wrench size={16} />
+              <span>Parts Catalog</span>
             </div>
           </>
         )}
@@ -150,44 +139,43 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentView, onNavigate }) => 
               className={`nav-link ${currentView === 'customer-requests' ? 'active' : ''}`}
               onClick={() => onNavigate('customer-requests')}
             >
-              <ClipboardList size={18} />
-              My Service Requests
+              <ClipboardList size={16} />
+              <span>Service Requests</span>
             </div>
             <div
               className={`nav-link ${currentView === 'customer-create' ? 'active' : ''}`}
               onClick={() => onNavigate('customer-create')}
             >
-              <PlusCircle size={18} />
-              Raise Service Request
+              <PlusCircle size={16} />
+              <span>New Request</span>
             </div>
             <div
               className={`nav-link ${currentView === 'sites' ? 'active' : ''}`}
               onClick={() => onNavigate('sites')}
             >
-              <MapPin size={18} />
-              Our Facilities
+              <MapPin size={16} />
+              <span>Our Facilities</span>
             </div>
           </>
         )}
 
         {/* Developer & Documentation Link */}
-        <div className="nav-category">API & Docs</div>
+        <div className="nav-category">API & Documentation</div>
         <a
           href="/swagger-ui.html"
           target="_blank"
           rel="noreferrer"
           className="nav-link"
-          style={{ color: 'var(--text-secondary)' }}
         >
-          <FileCode2 size={18} />
-          Swagger OpenAPI
+          <FileCode2 size={16} />
+          <span>Swagger OpenAPI</span>
         </a>
       </nav>
 
       <div className="sidebar-footer">
-        <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-          <div>Project KEYSTONE v1.0.0</div>
-          <div>Spring Boot 3 + MySQL 8</div>
+        <div style={{ fontSize: '0.725rem', color: 'var(--text-muted)' }}>
+          <div>Project KEYSTONE Enterprise</div>
+          <div>v1.0.0 • Production</div>
         </div>
       </div>
     </aside>

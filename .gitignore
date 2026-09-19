@@ -1,26 +1,75 @@
-# Node / Frontend
-frontend/node_modules/
-frontend/dist/
-frontend/dist-ssr/
+# ==============================================================================
+# PROJECT KEYSTONE - Git Ignore Rules
+# ==============================================================================
+
+# Node / Frontend Dependencies & Build Output
+**/node_modules/
+**/dist/
+**/dist-ssr/
 frontend/*.local
-frontend/.env.local
-frontend/.env.development.local
-frontend/.env.test.local
-frontend/.env.production.local
 frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
+frontend/.vite/
 
-# Java / Maven / Backend
-backend/target/
-backend/.mvn/
+# Java / Maven / Backend Build Output
+**/target/
 backend/*.jar
 backend/*.war
+*.class
 
-# IDE & System
+# Maven Wrapper runtime files to keep
+!backend/mvnw
+!backend/mvnw.cmd
+!backend/.mvn/wrapper/maven-wrapper.properties
+
+# Database & Runtime Storage
+**/data/
+*.mv.db
+*.trace.db
+**/uploads/
+uploads/
+
+# Environment Configurations & Secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+
+# Logs & Diagnostics
+*.log
+logs/
+**/logs/
+
+# IDE & Editor Files
 .idea/
 .vscode/
 *.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+
+# OS Artifacts
 .DS_Store
 Thumbs.db
-*.log
+ehthumbs.db
+desktop.ini
+
+# Developer Tools & Video Artifacts
+*.webm
+**/*.webm
+recorder_tool/node_modules/
+coverage/
+
+.cache/
+.tools/
+
+# Temporary development screenshots at root
+*.png
+!frontend/public/*.png
+!docs/*.png
+!docs/**/*.png

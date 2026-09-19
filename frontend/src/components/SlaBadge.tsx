@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { SlaStatus } from '../types';
-import { AlertTriangle, CheckCircle2, Clock, XCircle } from 'lucide-react';
 
 interface SlaBadgeProps {
   status: SlaStatus;
@@ -37,34 +36,48 @@ export const SlaBadge: React.FC<SlaBadgeProps> = ({ status, dueDate, showTimer =
     return () => clearInterval(interval);
   }, [dueDate, showTimer]);
 
-  const renderIcon = () => {
-    switch (status) {
+  const getSlaConfig = (st: SlaStatus) => {
+    switch (st) {
       case 'ON_TRACK':
-        return <CheckCircle2 size={13} />;
+        return { label: 'On Track', color: '#15803D', dotColor: '#16A34A' };
       case 'AT_RISK':
-        return <AlertTriangle size={13} />;
+        return { label: 'At Risk', color: '#B45309', dotColor: '#D97706' };
       case 'BREACHED':
-        return <XCircle size={13} />;
+        return { label: 'Breached', color: '#DC2626', dotColor: '#EF4444' };
+      default:
+        return { label: st, color: '#4B5563', dotColor: '#6B7280' };
     }
   };
 
-  const formatText = () => {
-    switch (status) {
-      case 'ON_TRACK': return 'SLA On Track';
-      case 'AT_RISK': return 'SLA At Risk';
-      case 'BREACHED': return 'SLA Breached';
-    }
-  };
+  const config = getSlaConfig(status);
 
   return (
-    <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '0.2rem' }}>
-      <span className={`badge sla-${status.toLowerCase()}`}>
-        {renderIcon()}
-        {formatText()}
+    <div style={{ display: 'inline-flex', flexDirection: 'column', gap: '0.15rem' }}>
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '0.35rem',
+          fontSize: '0.8rem',
+          fontWeight: status === 'ON_TRACK' ? 500 : 600,
+          color: config.color,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <span
+          style={{
+            width: '5px',
+            height: '5px',
+            borderRadius: '50%',
+            backgroundColor: config.dotColor,
+            display: 'inline-block',
+          }}
+        />
+        {config.label}
       </span>
       {showTimer && timeRemaining && (
-        <span style={{ fontSize: '0.75rem', color: status === 'BREACHED' ? 'var(--danger)' : 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-          <Clock size={11} /> {timeRemaining}
+        <span style={{ fontSize: '0.725rem', color: status === 'BREACHED' ? '#DC2626' : '#475467', fontWeight: 500 }}>
+          {timeRemaining}
         </span>
       )}
     </div>

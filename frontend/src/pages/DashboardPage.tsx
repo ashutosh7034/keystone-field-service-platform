@@ -1,21 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { dashboardApi } from '../api/client';
 import { DashboardSummary, WorkOrderStatus } from '../types';
-import { StatCard } from '../components/StatCard';
 import { StatusBadge } from '../components/StatusBadge';
 import { PriorityBadge } from '../components/PriorityBadge';
 import { SlaBadge } from '../components/SlaBadge';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
-import {
-  ClipboardList,
-  AlertTriangle,
-  Clock,
-  Wrench,
-  Building2,
-  TrendingUp,
-  Activity,
-  ArrowRight
-} from 'lucide-react';
+import { ArrowRight, Eye, RefreshCw } from 'lucide-react';
 
 interface DashboardPageProps {
   onNavigateToWorkOrder: (id: number) => void;
@@ -30,26 +20,31 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
+  const loadDashboard = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const res = await dashboardApi.getSummary();
+      setData(res.data);
+    } catch (err: any) {
+      setError('Failed to load dashboard metrics. Please check API server.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const loadDashboard = async () => {
-      try {
-        setIsLoading(true);
-        const res = await dashboardApi.getSummary();
-        setData(res.data);
-      } catch (err: any) {
-        setError('Failed to load dashboard metrics. Please check API server.');
-      } finally {
-        setIsLoading(false);
-      }
-    };
     loadDashboard();
   }, []);
 
   if (isLoading) {
     return (
       <div className="page-body">
-        <h2 style={{ marginBottom: '1.5rem' }}>Operations Dashboard</h2>
-        <LoadingSkeleton rows={5} height="80px" />
+        <div style={{ marginBottom: '1.25rem' }}>
+          <h2>Operations Dashboard</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Loading maintenance queue...</p>
+        </div>
+        <LoadingSkeleton rows={6} height="60px" />
       </div>
     );
   }
@@ -57,268 +52,297 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   if (error || !data) {
     return (
       <div className="page-body">
-        <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--danger)' }}>
-          {error || 'Unable to load dashboard data.'}
+        <div style={{ padding: '2rem', textAlign: 'center', backgroundColor: '#FFFFFF', border: '1px solid #D9DEE5', borderRadius: '6px' }}>
+          <div style={{ color: 'var(--danger)', fontWeight: 600, marginBottom: '0.5rem' }}>
+            {error || 'Unable to load dashboard data.'}
+          </div>
+          <button className="btn btn-secondary btn-sm" onClick={loadDashboard}>
+            <RefreshCw size={13} /> Retry
+          </button>
         </div>
       </div>
     );
   }
 
-  const inProgressCount = (data.statusCounts['IN_PROGRESS'] || 0) + (data.statusCounts['ASSIGNED'] || 0) + (data.statusCounts['ON_HOLD'] || 0);
+  const inProgressCount =
+    (data.statusCounts['IN_PROGRESS'] || 0) +
+    (data.statusCounts['ASSIGNED'] || 0) +
+    (data.statusCounts['ON_HOLD'] || 0);
 
   return (
     <div className="page-body">
       {/* Page Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1.75rem' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginBottom: '1.25rem',
+          flexWrap: 'wrap',
+          gap: '1rem',
+        }}
+      >
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Operations Dashboard</h2>
-          <p style={{ fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
-            Real-time facilities maintenance status across HVAC, Electrical, and Plumbing
+          <h2 style={{ fontSize: '1.35rem', fontWeight: 700, color: 'var(--text-primary)' }}>
+            Operations Dashboard
+          </h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
+            Open work orders and current maintenance activity.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
           <button className="btn btn-secondary btn-sm" onClick={() => onNavigateToView('kanban')}>
             View Kanban Board
           </button>
           <button className="btn btn-primary btn-sm" onClick={() => onNavigateToView('workorders')}>
-            All Work Orders <ArrowRight size={14} />
+            All Work Orders <ArrowRight size={13} />
           </button>
         </div>
       </div>
 
-      {/* KPI Stats Grid */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '1.25rem',
-          marginBottom: '2rem',
-        }}
-      >
-        <StatCard
-          label="Total Work Orders"
-          value={data.totalWorkOrders}
-          icon={<ClipboardList size={24} />}
-          color="#3b82f6"
-          bg="rgba(59, 130, 246, 0.15)"
-        />
-        <StatCard
-          label="Active Jobs"
-          value={inProgressCount}
-          icon={<Wrench size={24} />}
-          color="#f59e0b"
-          bg="rgba(245, 158, 11, 0.15)"
-        />
-        <StatCard
-          label="Overdue / Breached"
-          value={data.overdueCount}
-          icon={<AlertTriangle size={24} />}
-          color="#ef4444"
-          bg="rgba(239, 68, 68, 0.15)"
-        />
-        <StatCard
-          label="Approaching SLA (<2h)"
-          value={data.atRiskCount}
-          icon={<Clock size={24} />}
-          color="#f97316"
-          bg="rgba(249, 115, 22, 0.15)"
-        />
-        <StatCard
-          label="SLA Compliance Rate"
-          value={`${data.slaCompliancePercentage}%`}
-          icon={<TrendingUp size={24} />}
-          color="#10b981"
-          bg="rgba(16, 185, 129, 0.15)"
-        />
+      {/* Operational Summary Panel (Structured, Non-Floating) */}
+      <div className="ops-summary-panel">
+        {/* Total Work Orders */}
+        <div className="ops-summary-item">
+          <span className="ops-summary-label">Total Work Orders</span>
+          <span className="ops-summary-value">{data.totalWorkOrders}</span>
+        </div>
+
+        {/* Active Jobs */}
+        <div className="ops-summary-item">
+          <span className="ops-summary-label">Active Jobs</span>
+          <span className="ops-summary-value">{inProgressCount}</span>
+        </div>
+
+        {/* Overdue */}
+        <div className="ops-summary-item">
+          <span className="ops-summary-label">Overdue</span>
+          <span
+            className="ops-summary-value"
+            style={{ color: data.overdueCount > 0 ? 'var(--danger)' : 'var(--text-primary)' }}
+          >
+            {data.overdueCount}
+          </span>
+        </div>
+
+        {/* Approaching SLA */}
+        <div className="ops-summary-item">
+          <span className="ops-summary-label">Approaching SLA</span>
+          <span
+            className="ops-summary-value"
+            style={{ color: data.atRiskCount > 0 ? 'var(--warning)' : 'var(--text-primary)' }}
+          >
+            {data.atRiskCount}
+          </span>
+        </div>
+
+        {/* SLA Compliance */}
+        <div className="ops-summary-item">
+          <span className="ops-summary-label">SLA Compliance</span>
+          <span className="ops-summary-value" style={{ color: 'var(--success)' }}>
+            {data.slaCompliancePercentage}%
+          </span>
+        </div>
       </div>
 
-      {/* Main Grid: Status Breakdown & Technician Workload */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.5rem', marginBottom: '2rem' }}>
-        {/* Work Orders by Status Breakdown */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">
-              <Activity size={18} color="var(--primary)" /> Work Orders by Status
-            </h3>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Lifecycle distribution</span>
+      {/* Primary Section: Work Orders Requiring Attention */}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '0.65rem',
+          }}
+        >
+          <h3 style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+            Work Orders Requiring Attention
+          </h3>
+          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+            Showing {data.recentActivity.length} recent activity items
+          </span>
+        </div>
+
+        <div className="table-responsive">
+          <table className="table">
+            <thead>
+              <tr>
+                <th>WO Number</th>
+                <th>Customer</th>
+                <th>Site</th>
+                <th>Priority</th>
+                <th>Technician</th>
+                <th>Status</th>
+                <th>SLA</th>
+                <th>Updated</th>
+                <th style={{ textAlign: 'right' }}>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.recentActivity.length === 0 ? (
+                <tr>
+                  <td colSpan={9} style={{ textAlign: 'center', padding: '2rem 1rem', color: 'var(--text-muted)' }}>
+                    No open work orders requiring attention.
+                  </td>
+                </tr>
+              ) : (
+                data.recentActivity.map((wo) => (
+                  <tr
+                    key={wo.id}
+                    onClick={() => onNavigateToWorkOrder(wo.id)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td style={{ fontWeight: 600, fontFamily: 'monospace', color: 'var(--primary)' }}>
+                      {wo.workOrderCode}
+                    </td>
+                    <td style={{ fontWeight: 500, color: 'var(--text-primary)' }}>
+                      {wo.customerName || '—'}
+                    </td>
+                    <td style={{ color: 'var(--text-secondary)' }}>
+                      {wo.siteName || '—'}
+                    </td>
+                    <td>
+                      <PriorityBadge priority={wo.priority} />
+                    </td>
+                    <td style={{ color: wo.assignedTechnicianName ? 'var(--text-primary)' : 'var(--text-muted)' }}>
+                      {wo.assignedTechnicianName || 'Unassigned'}
+                    </td>
+                    <td>
+                      <StatusBadge status={wo.status} />
+                    </td>
+                    <td>
+                      <SlaBadge status={wo.slaStatus} dueDate={wo.slaDueDate} showTimer />
+                    </td>
+                    <td style={{ fontSize: '0.775rem', color: 'var(--text-muted)' }}>
+                      {wo.updatedAt ? new Date(wo.updatedAt).toLocaleDateString('en-GB') : '—'}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      <button
+                        className="btn btn-secondary btn-sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onNavigateToWorkOrder(wo.id);
+                        }}
+                        style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                      >
+                        <Eye size={12} /> View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Secondary Operational Section: Technician Workload & Status Breakdown */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '1.25rem' }}>
+        {/* Technician Workload Table */}
+        <div className="card" style={{ padding: '1rem 1.25rem' }}>
+          <div className="card-header" style={{ marginBottom: '0.75rem' }}>
+            <h3 className="card-title">Technician Workload</h3>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+              {data.technicianWorkloads.length} Field Technicians
+            </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem' }}>
+          <div style={{ overflowX: 'auto' }}>
+            <table className="table" style={{ fontSize: '0.825rem' }}>
+              <thead>
+                <tr>
+                  <th>Technician</th>
+                  <th style={{ textAlign: 'center' }}>Active Jobs</th>
+                  <th style={{ textAlign: 'right' }}>Capacity</th>
+                </tr>
+              </thead>
+              <tbody>
+                {data.technicianWorkloads.length === 0 ? (
+                  <tr>
+                    <td colSpan={3} style={{ textAlign: 'center', padding: '1.5rem', color: 'var(--text-muted)' }}>
+                      No active technician assignments.
+                    </td>
+                  </tr>
+                ) : (
+                  data.technicianWorkloads.map((tech) => {
+                    const capacityLabel =
+                      tech.activeJobsCount === 0
+                        ? 'Available'
+                        : tech.activeJobsCount <= 2
+                        ? 'Optimal'
+                        : 'At Capacity';
+
+                    const capacityColor =
+                      tech.activeJobsCount === 0
+                        ? '#15803D'
+                        : tech.activeJobsCount <= 2
+                        ? '#2563EB'
+                        : '#B45309';
+
+                    return (
+                      <tr key={tech.technicianId}>
+                        <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>
+                          {tech.technicianName}
+                        </td>
+                        <td style={{ textAlign: 'center', fontWeight: 600 }}>
+                          {tech.activeJobsCount}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          <span
+                            style={{
+                              fontSize: '0.75rem',
+                              fontWeight: 500,
+                              color: capacityColor,
+                              backgroundColor: tech.activeJobsCount === 0 ? '#F0FDF4' : tech.activeJobsCount <= 2 ? '#EFF6FF' : '#FFFBEB',
+                              padding: '0.15rem 0.45rem',
+                              borderRadius: '4px',
+                              border: `1px solid ${tech.activeJobsCount === 0 ? '#BBF7D0' : tech.activeJobsCount <= 2 ? '#BFDBFE' : '#FDE68A'}`,
+                            }}
+                          >
+                            {capacityLabel}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Work Orders by Status List */}
+        <div className="card" style={{ padding: '1rem 1.25rem' }}>
+          <div className="card-header" style={{ marginBottom: '0.75rem' }}>
+            <h3 className="card-title">Work Orders by Status</h3>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Lifecycle distribution</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
             {(Object.keys(data.statusCounts) as WorkOrderStatus[]).map((st) => {
               const count = data.statusCounts[st] || 0;
               const pct = data.totalWorkOrders > 0 ? (count / data.totalWorkOrders) * 100 : 0;
               return (
                 <div key={st}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.35rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
                     <StatusBadge status={st} />
-                    <span style={{ fontSize: '0.85rem', fontWeight: 700 }}>
-                      {count} <span style={{ color: 'var(--text-muted)', fontWeight: 400 }}>({pct.toFixed(0)}%)</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      <strong>{count}</strong> ({pct.toFixed(0)}%)
                     </span>
                   </div>
-                  <div style={{ height: '6px', width: '100%', backgroundColor: 'var(--bg-surface)', borderRadius: 'var(--radius-full)', overflow: 'hidden' }}>
+                  <div style={{ height: '4px', width: '100%', backgroundColor: '#E5E7EB', borderRadius: '2px', overflow: 'hidden' }}>
                     <div
                       style={{
                         height: '100%',
                         width: `${pct}%`,
-                        backgroundColor: st === 'CLOSED' ? '#64748b' : st === 'COMPLETED' ? '#10b981' : st === 'CANCELLED' ? '#ef4444' : '#3b82f6',
-                        borderRadius: 'var(--radius-full)',
-                        transition: 'width 0.4s ease',
+                        backgroundColor: st === 'CLOSED' ? '#9CA3AF' : st === 'COMPLETED' ? '#16A34A' : st === 'CANCELLED' ? '#DC2626' : '#2563EB',
+                        borderRadius: '2px',
                       }}
                     />
                   </div>
                 </div>
               );
             })}
-          </div>
-        </div>
-
-        {/* Technician Active Workload */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">
-              <Wrench size={18} color="var(--warning)" /> Technician Workload
-            </h3>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Assigned active jobs</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {data.technicianWorkloads.length === 0 ? (
-              <div style={{ color: 'var(--text-muted)', fontSize: '0.85rem', padding: '1rem 0' }}>No active technician assignments.</div>
-            ) : (
-              data.technicianWorkloads.map((tech) => (
-                <div
-                  key={tech.technicianId}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '0.75rem 1rem',
-                    backgroundColor: 'var(--bg-surface)',
-                    borderRadius: 'var(--radius-md)',
-                    border: '1px solid var(--border-subtle)',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: 'var(--radius-full)',
-                        backgroundColor: 'var(--bg-card)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 700,
-                        fontSize: '0.8rem',
-                        color: 'var(--warning)',
-                        border: '1px solid var(--warning-border)',
-                      }}
-                    >
-                      {tech.technicianName.charAt(0)}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.875rem', fontWeight: 600 }}>{tech.technicianName}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Field Specialist</div>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <span
-                      style={{
-                        padding: '0.2rem 0.6rem',
-                        borderRadius: 'var(--radius-full)',
-                        backgroundColor: 'var(--warning-bg)',
-                        color: 'var(--warning)',
-                        fontWeight: 700,
-                        fontSize: '0.8rem',
-                      }}
-                    >
-                      {tech.activeJobsCount} Active
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Grid: Recent Activity & Site Distribution */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: '1.5rem' }}>
-        {/* Recent Work Order Activity */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">
-              <Clock size={18} color="var(--info)" /> Recent Work Orders
-            </h3>
-            <button className="btn btn-outline btn-sm" onClick={() => onNavigateToView('workorders')}>
-              View All
-            </button>
-          </div>
-
-          <div className="table-responsive">
-            <table className="table">
-              <thead>
-                <tr>
-                  <th>Code</th>
-                  <th>Title</th>
-                  <th>Priority</th>
-                  <th>Status</th>
-                  <th>SLA</th>
-                </tr>
-              </thead>
-              <tbody>
-                {data.recentActivity.map((wo) => (
-                  <tr
-                    key={wo.id}
-                    onClick={() => onNavigateToWorkOrder(wo.id)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <td style={{ fontWeight: 700, color: 'var(--primary)' }}>{wo.workOrderCode}</td>
-                    <td>
-                      <div style={{ fontWeight: 600 }}>{wo.title}</div>
-                      <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{wo.siteName} ({wo.customerName})</div>
-                    </td>
-                    <td><PriorityBadge priority={wo.priority} /></td>
-                    <td><StatusBadge status={wo.status} /></td>
-                    <td><SlaBadge status={wo.slaStatus} /></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Site Work Order Concentrations */}
-        <div className="card">
-          <div className="card-header">
-            <h3 className="card-title">
-              <Building2 size={18} color="var(--primary)" /> Top Facility Sites
-            </h3>
-            <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>By volume</span>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            {data.siteDistribution.slice(0, 6).map((site) => (
-              <div
-                key={site.siteId}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: 'var(--radius-md)',
-                  backgroundColor: 'var(--bg-surface)',
-                }}
-              >
-                <div>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 600 }}>{site.siteName}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{site.customerName}</div>
-                </div>
-                <span style={{ fontWeight: 700, fontSize: '0.85rem', color: 'var(--primary)' }}>
-                  {site.workOrdersCount} Jobs
-                </span>
-              </div>
-            ))}
           </div>
         </div>
       </div>

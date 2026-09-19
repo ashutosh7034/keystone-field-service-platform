@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { workOrdersApi, sitesApi } from '../api/client';
 import { WorkOrderSummary, Site, Priority, WorkOrderStatus } from '../types';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { StatusBadge } from '../components/StatusBadge';
 import { PriorityBadge } from '../components/PriorityBadge';
 import { SlaBadge } from '../components/SlaBadge';
 import { Modal } from '../components/Modal';
 import { LoadingSkeleton } from '../components/LoadingSkeleton';
 import { EmptyState } from '../components/EmptyState';
-import { Plus, Search, Building2, MapPin, ClipboardList, Eye } from 'lucide-react';
+import { Plus, Search, Building2, MapPin, ClipboardList, Eye, Wrench } from 'lucide-react';
 
 interface CustomerPortalPageProps {
   onNavigateToWorkOrder: (id: number) => void;
@@ -16,6 +17,7 @@ interface CustomerPortalPageProps {
 
 export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNavigateToWorkOrder }) => {
   const { user } = useAuth();
+  const toast = useToast();
   const [requests, setRequests] = useState<WorkOrderSummary[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -76,6 +78,7 @@ export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNaviga
         priority: reqPriority,
         siteId: Number(reqSiteId),
       });
+      toast.success(`Service request ${res.data.workOrderCode} submitted successfully!`);
       setIsModalOpen(false);
       setReqTitle('');
       setReqDescription('');
@@ -94,12 +97,13 @@ export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNaviga
     <div className="page-body">
       {/* Customer Header Banner */}
       <div
+        className="dark-hero-banner"
         style={{
-          background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-          border: '1px solid var(--border-medium)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '1.75rem',
-          marginBottom: '1.75rem',
+          backgroundColor: '#0F1B2D',
+          border: '1px solid #1E293B',
+          borderRadius: '6px',
+          padding: '1.5rem 1.75rem',
+          marginBottom: '1.5rem',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
@@ -108,13 +112,33 @@ export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNaviga
         }}
       >
         <div>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ec4899', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-            <Building2 size={14} /> Client Service Portal
+          <div
+            style={{
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              color: '#93C5FD',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              marginBottom: '0.35rem',
+            }}
+          >
+            <Building2 size={14} color="#93C5FD" /> CLIENT SERVICE PORTAL
           </div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginTop: '0.2rem' }}>
+          <h2
+            style={{
+              fontSize: '1.45rem',
+              fontWeight: 700,
+              color: '#FFFFFF',
+              margin: '0 0 0.35rem 0',
+              letterSpacing: '-0.01em',
+            }}
+          >
             {user?.fullName}
           </h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '0.875rem', color: '#CBD5E1', margin: 0 }}>
             Raise, track, and monitor facilities maintenance across your organization's sites
           </p>
         </div>
@@ -137,24 +161,24 @@ export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNaviga
           />
           <Search
             size={16}
-            color="var(--text-muted)"
+            color="#667085"
             style={{ position: 'absolute', left: '0.85rem', top: '50%', transform: 'translateY(-50%)' }}
           />
         </div>
 
         <select
           className="form-control"
-          style={{ width: '180px' }}
+          style={{ width: '200px' }}
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value as WorkOrderStatus | '')}
         >
           <option value="">All Statuses</option>
-          <option value="NEW">New (Submitted)</option>
-          <option value="ASSIGNED">Assigned to Tech</option>
+          <option value="NEW">New Request</option>
+          <option value="ASSIGNED">Assigned</option>
           <option value="IN_PROGRESS">In Progress</option>
           <option value="ON_HOLD">On Hold</option>
           <option value="COMPLETED">Completed</option>
-          <option value="CLOSED">Closed (Signed Off)</option>
+          <option value="CLOSED">Closed</option>
         </select>
       </div>
 
@@ -164,10 +188,8 @@ export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNaviga
       ) : requests.length === 0 ? (
         <EmptyState
           title="No service requests found"
-          description="You currently have no maintenance tickets in this category."
-          actionText="Raise Service Request"
-          onAction={() => setIsModalOpen(true)}
-          icon={<ClipboardList size={48} color="var(--text-muted)" />}
+          description="You currently have no active or matching maintenance requests."
+          icon={<ClipboardList size={48} color="#667085" />}
         />
       ) : (
         <div className="table-responsive">
@@ -177,6 +199,7 @@ export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNaviga
                 <th>Ticket Code</th>
                 <th>Subject & Issue</th>
                 <th>Facility Site</th>
+                <th>Assigned Tech</th>
                 <th>Priority</th>
                 <th>Current Status</th>
                 <th>Target SLA</th>
@@ -190,27 +213,39 @@ export const CustomerPortalPage: React.FC<CustomerPortalPageProps> = ({ onNaviga
                   onClick={() => onNavigateToWorkOrder(req.id)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <td style={{ fontWeight: 800, color: 'var(--primary)', fontFamily: 'monospace' }}>
+                  <td style={{ fontWeight: 600, color: 'var(--primary)', fontFamily: 'monospace', fontSize: '0.85rem' }}>
                     {req.workOrderCode}
                   </td>
                   <td>
-                    <div style={{ fontWeight: 600 }}>{req.title}</div>
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                    <div style={{ fontWeight: 600, color: '#1F2937' }}>{req.title}</div>
+                    <div style={{ fontSize: '0.75rem', color: '#475467', marginTop: '0.15rem' }}>
                       Submitted {new Date(req.createdAt).toLocaleDateString()}
                     </div>
                   </td>
                   <td>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem' }}>
-                      <MapPin size={13} color="var(--text-muted)" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', color: '#1F2937' }}>
+                      <MapPin size={13} color="#475467" />
                       {req.siteName}
                     </div>
+                  </td>
+                  <td>
+                    {req.assignedTechnicianName ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.85rem', fontWeight: 600, color: '#1F2937' }}>
+                        <Wrench size={13} color="#D97706" />
+                        <span>{req.assignedTechnicianName}</span>
+                      </div>
+                    ) : (
+                      <span style={{ color: '#475467', fontSize: '0.85rem', fontStyle: 'italic' }}>
+                        Pending Dispatch
+                      </span>
+                    )}
                   </td>
                   <td><PriorityBadge priority={req.priority} /></td>
                   <td><StatusBadge status={req.status} /></td>
                   <td><SlaBadge status={req.slaStatus} dueDate={req.slaDueDate} showTimer /></td>
                   <td>
                     <button
-                      className="btn btn-outline btn-sm"
+                      className="btn btn-secondary btn-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         onNavigateToWorkOrder(req.id);

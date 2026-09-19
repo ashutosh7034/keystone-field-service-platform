@@ -176,6 +176,23 @@ export const workOrdersApi = {
     }),
 
   getAttachments: (id: number) => api.get(`/api/work-orders/${id}/attachments`),
+
+  downloadAttachment: async (id: number, originalFileName: string) => {
+    const response = await api.get(`/api/attachments/${id}/download`, {
+      responseType: 'blob',
+    });
+    const contentType = response.headers['content-type'];
+    const mimeType = typeof contentType === 'string' ? contentType : 'application/octet-stream';
+    const blob = new Blob([response.data], { type: mimeType });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = originalFileName || `attachment-${id}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  },
 };
 
 export const customersApi = {

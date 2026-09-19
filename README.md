@@ -63,7 +63,28 @@ The platform is pre-loaded with sample operational data across all 4 system role
 
 ---
 
-## 3. How to Run (Step-by-Step Guide)
+## 3. Environment Variables
+
+The application is pre-configured with sensible defaults for local development. For custom environments, Docker, or production deployments, configure the following variables:
+
+| Variable | Default Value | Description |
+| :--- | :--- | :--- |
+| `DB_URL` | `jdbc:mysql://localhost:3306/keystone_db?...` | JDBC connection URL for MySQL database |
+| `DB_HOST` | `localhost` | MySQL host address |
+| `DB_PORT` | `3306` | MySQL port |
+| `DB_NAME` | `keystone_db` | MySQL database name |
+| `DB_USERNAME` | `root` | Database username |
+| `DB_PASSWORD` | *(empty)* | Database password |
+| `JWT_SECRET` | *(64-hex key)* | HMAC-SHA256 secret key for signing tokens |
+| `JWT_EXPIRATION` | `86400000` (24 hrs) | JWT token lifespan in milliseconds |
+| `PORT` / `SERVER_PORT` | `8080` | Spring Boot HTTP port |
+| `CORS_ALLOWED_ORIGINS` | `http://localhost:5173,...` | Allowed CORS origins for frontend client |
+| `UPLOAD_DIR` | `uploads` | Directory for stored work order attachments |
+| `VITE_API_URL` | `http://localhost:8080` | Frontend backend API URL |
+
+---
+
+## 4. How to Run (Step-by-Step Guide)
 
 You can run PROJECT KEYSTONE locally on your machine using either **Native Local Setup (XAMPP / MySQL + Maven + Vite)** or **Docker 1-Click Setup**.
 
@@ -106,24 +127,24 @@ mvn -v
 #### Step 3: Start Spring Boot Backend
 Open a terminal in the project root:
 
-**Windows (PowerShell):**
+**Windows (PowerShell / Command Prompt):**
 ```powershell
 cd backend
-mvn clean package -DskipTests
-mvn spring-boot:run
+.\mvnw.cmd clean package -DskipTests
+.\mvnw.cmd spring-boot:run
 ```
 
 **Linux / macOS (Bash):**
 ```bash
 cd backend
-mvn clean package -DskipTests
-mvn spring-boot:run
+./mvnw clean package -DskipTests
+./mvnw spring-boot:run
 ```
 
 **What happens on startup:**
 - Flyway automatically executes database migrations `V1` through `V11`.
 - Creates all database schema tables, constraints, foreign keys, and indexes.
-- Seeds demo users, facilities, parts inventory, and work orders.
+- Seeds demo users (with standard BCrypt hashes), facilities, parts inventory, and work orders.
 - Backend server begins listening at `http://localhost:8080`.
 
 **Verify Backend is Running:**
@@ -167,27 +188,34 @@ docker-compose down -v
 
 ---
 
-## 4. Running Automated Tests
+## 5. Running Automated Tests
 
-Run the full backend automated test suite (verifying lifecycle states, customer tenant isolation, concurrency locks, SLA alarms, and authentication):
+Run the full backend automated test suite (verifying lifecycle states, customer tenant isolation, concurrency locks, SLA alarms, and authentication) using the Maven Wrapper:
 
+**Windows:**
 ```powershell
 cd backend
-mvn test
+.\mvnw.cmd test
 ```
 
-### Verified Test Suites (18 / 18 Passing):
+**Linux / macOS:**
+```bash
+cd backend
+./mvnw test
+```
+
+### Verified Test Suites (19 / 19 Passing):
 | Test Class | Tests | Key Scenarios Verified |
 | :--- | :---: | :--- |
-| `WorkOrderLifecycleTest` | 7 | Legal state progression, invalid transition rejection (409 Conflict), note validation, manager closure enforcement |
-| `CustomerIsolationTest` | 3 | Customer scoped queries, cross-tenant forbidden access, internal notes exclusion |
+| `WorkOrderLifecycleTest` | 8 | Legal state progression, invalid transition rejection (409 Conflict), dispatcher reassignment from ON_HOLD, note validation, manager closure enforcement |
+| `CustomerIsolationTest` | 3 | Customer scoped queries, cross-tenant forbidden access, internal notes exclusion, technician and attachment metadata |
 | `PartUsageTransactionTest`| 2 | Atomic inventory deduction, pessimistic write locking (`@Lock`), insufficient stock rejection |
 | `SlaServiceTest` | 2 | SLA status calculation, automated notification dispatch for breached tickets |
 | `AuthServiceTest` | 4 | JWT issuance, password hashing verification, unauthorized rejection |
 
 ---
 
-## 5. Work Order State Machine Rules
+## 6. Work Order State Machine Rules
 
 The state transition validation matrix in `WorkOrderLifecycleStateMachine.java` strictly enforces:
 
@@ -223,7 +251,7 @@ The state transition validation matrix in `WorkOrderLifecycleStateMachine.java` 
 
 ---
 
-## 6. SLA & Concurrency Specifications
+## 7. SLA & Concurrency Specifications
 
 1. **SLA Breach Calculations**:
    - `CRITICAL`: 4 hours SLA deadline
@@ -237,7 +265,7 @@ The state transition validation matrix in `WorkOrderLifecycleStateMachine.java` 
 
 ---
 
-## 7. Primary API Endpoints
+## 8. Primary API Endpoints
 
 | Method | Endpoint | Allowed Roles | Description |
 | :--- | :--- | :--- | :--- |
@@ -246,11 +274,12 @@ The state transition validation matrix in `WorkOrderLifecycleStateMachine.java` 
 | `GET` | `/api/health` | Public | System status and database connectivity |
 | `GET` | `/api/work-orders` | Manager, Dispatcher | Search and filter work orders with pagination |
 | `POST` | `/api/work-orders` | Manager, Dispatcher | Create new work order |
-| `GET` | `/api/work-orders/{id}` | All Roles (Scoped) | Retrieve detailed work order payload |
-| `PATCH`| `/api/work-orders/{id}/status` | All Roles (RBAC) | Execute state machine status transition |
-| `POST` | `/api/work-orders/{id}/parts` | Manager, Technician | Log parts consumed with warehouse lock |
-| `POST` | `/api/work-orders/{id}/timelogs` | Manager, Technician | Log technician labor hours |
+| `GET` | `/api/work-orders/{id}` | All Roles (Scoped) | Retrieve detailed work order payload (Customer detail sanitized) |
+| `PATCH`, `POST` | `/api/work-orders/{id}/status` | All Roles (RBAC) | Execute state machine status transition |
+| `POST` | `/api/work-orders/{id}/parts` | Manager, Technician | Log parts consumed with warehouse pessimistic lock |
+| `POST`, `GET` | `/api/work-orders/{id}/timelogs` (alias: `/time`) | Manager, Technician | Log or retrieve technician labor hours |
 | `POST` | `/api/work-orders/{id}/attachments` | Authenticated | Upload job photos and documentation |
+| `GET` | `/api/attachments/{id}` | Authenticated | Stream secure attachment file (Bearer header or `?token=` parameter) |
 | `GET` | `/api/dashboard/summary` | Manager, Dispatcher | Live KPIs, SLA health, and status counters |
 | `GET` | `/api/reports/summary` | Manager | SLA breach rates, technician workloads, category costs |
 | `GET` | `/api/customers` | Manager, Dispatcher | List customers and facilities |
@@ -258,7 +287,7 @@ The state transition validation matrix in `WorkOrderLifecycleStateMachine.java` 
 
 ---
 
-## 8. Troubleshooting Guide
+## 9. Troubleshooting Guide
 
 | Issue | Cause | Solution |
 | :--- | :--- | :--- |
@@ -269,6 +298,7 @@ The state transition validation matrix in `WorkOrderLifecycleStateMachine.java` 
 
 ---
 
-## 9. License & Credits
+## 10. License & Credits
 Built for **Meridian Facilities Management** as part of **Project KEYSTONE** engineering specifications.
 Designed and implemented with modern clean architecture principles.
+
