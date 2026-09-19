@@ -13,7 +13,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/health")
-@CrossOrigin
 @Tag(name = "Health", description = "Deployment verification & system health check endpoints")
 public class HealthController {
 

@@ -22,7 +22,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/parts")
 @RequiredArgsConstructor
-@CrossOrigin
 @Tag(name = "Parts & Inventory", description = "Parts inventory catalog, stock tracking, and pricing")
 @SecurityRequirement(name = "bearerAuth")
 public class PartController {

@@ -27,7 +27,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin
 @Tag(name = "Work Orders", description = "Core work order management, lifecycle transitions, dispatching, and execution")
 @SecurityRequirement(name = "bearerAuth")
 public class WorkOrderController {

@@ -25,7 +25,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/customers")
 @RequiredArgsConstructor
-@CrossOrigin
 @Tag(name = "Customers", description = "Customer organization management and profile endpoints")
 @SecurityRequirement(name = "bearerAuth")
 public class CustomerController {
