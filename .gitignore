@@ -59,14 +59,11 @@ Thumbs.db
 ehthumbs.db
 desktop.ini
 
-# Developer Tools & Video Artifacts
-*.webm
-**/*.webm
-recorder_tool/node_modules/
+# Developer Tools & Build Artifacts
 coverage/
-
 .cache/
 .tools/
+
 
 # Temporary development screenshots at root
 *.png
