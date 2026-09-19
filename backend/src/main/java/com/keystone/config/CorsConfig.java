@@ -10,6 +10,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,15 +20,12 @@ import java.util.stream.Collectors;
 
 @Configuration
 @Slf4j
-public class CorsConfig {
+public class CorsConfig implements WebMvcConfigurer {
 
     @Value("${keystone.cors.allowed-origins:http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173}")
     private String allowedOrigins;
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
+    private List<String> getAllowedOriginPatternsList() {
         List<String> originsList = new ArrayList<>();
         if (allowedOrigins != null && !allowedOrigins.trim().isEmpty()) {
             List<String> configured = Arrays.stream(allowedOrigins.split(","))
@@ -36,7 +35,6 @@ public class CorsConfig {
             originsList.addAll(configured);
         }
 
-        // Always allow localhost and Railway deployment domains
         originsList.addAll(Arrays.asList(
             "http://localhost:*",
             "http://127.0.0.1:*",
@@ -45,10 +43,30 @@ public class CorsConfig {
             "https://*.railway.app",
             "https://*.up.railway.app"
         ));
+        return originsList;
+    }
 
-        log.info("Configuring CORS with allowed origin patterns: {}", originsList);
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        List<String> origins = getAllowedOriginPatternsList();
+        log.info("Registering Spring MVC CORS allowed origins: {}", origins);
+        registry.addMapping("/**")
+                .allowedOriginPatterns(origins.toArray(new String[0]))
+                .allowedMethods("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD")
+                .allowedHeaders("*")
+                .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Authorization")
+                .allowCredentials(true)
+                .maxAge(3600);
+    }
 
-        configuration.setAllowedOriginPatterns(originsList);
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        List<String> origins = getAllowedOriginPatternsList();
+
+        log.info("Configuring Spring Security CORS with allowed origin patterns: {}", origins);
+
+        configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers", "*"));
         configuration.setExposedHeaders(Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Authorization"));
