@@ -70,15 +70,23 @@ public class SecurityConfig {
             }
         }
         originsList.addAll(java.util.Arrays.asList(
-            "http://localhost:*",
-            "http://127.0.0.1:*",
+            "https://frontend-production-f631.up.railway.app",
+            "http://localhost:5173",
+            "http://localhost:3000",
+            "http://127.0.0.1:5173",
             "http://localhost",
-            "http://127.0.0.1",
-            "https://*.railway.app",
-            "https://*.up.railway.app"
+            "http://127.0.0.1"
         ));
 
-        configuration.setAllowedOriginPatterns(originsList);
+        configuration.setAllowedOrigins(originsList);
+        configuration.setAllowedOriginPatterns(java.util.Arrays.asList(
+            "*",
+            "http://localhost:*",
+            "http://127.0.0.1:*",
+            "https://*.railway.app",
+            "https://*.up.railway.app",
+            "https://*.*.railway.app"
+        ));
         configuration.setAllowedMethods(java.util.Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "HEAD"));
         configuration.setAllowedHeaders(java.util.Arrays.asList("*"));
         configuration.setExposedHeaders(java.util.Arrays.asList("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials", "Authorization"));
